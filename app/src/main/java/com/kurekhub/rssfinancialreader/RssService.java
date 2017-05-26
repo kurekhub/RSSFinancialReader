@@ -27,12 +27,13 @@ public class RssService extends IntentService {
         super("RssService");
     }
 
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.d(TAG, "Service started");
         List<RssItem> rssItems = null;
         try {
-            RssParser parser = new RssParser();
+            RssParser parser = new RssParser(getApplicationContext());
             rssItems = parser.parse(getInputStream(RSS_LINK));
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
