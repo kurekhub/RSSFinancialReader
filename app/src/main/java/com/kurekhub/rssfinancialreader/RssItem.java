@@ -15,7 +15,6 @@ public class RssItem {
     }
 
     public String getTitle() {
-
         return title;
     }
 }

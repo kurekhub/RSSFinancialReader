@@ -40,7 +40,7 @@ public class NewsAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = View.inflate(content, R.layout.news_list_item, null);
+            convertView = View.inflate(content, R.layout.rss_item, null);
             holder = new ViewHolder();
             holder.itemTitle = (TextView) convertView.findViewById(R.id.news_list_item_title);
             convertView.setTag(holder);
