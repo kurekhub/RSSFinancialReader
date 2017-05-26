@@ -12,7 +12,6 @@ import java.util.List;
 
 public class PcWorldRssParser {
     private final String ns = null;
-
     public List<RssItem> parse(InputStream inputStream) throws XmlPullParserException, IOException {
         try {
             XmlPullParser parser = Xml.newPullParser();

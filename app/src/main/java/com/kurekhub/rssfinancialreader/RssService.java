@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.List;
 
 public class RssService extends IntentService {
+    public static final String TAG = "[RssService]";
+
     private static final String RSS_LINK = "http://finanse.wp.pl/rss.xml";
     public static final String ITEMS = "items";
     public static final String RECEIVER = "receiver";
@@ -27,7 +29,7 @@ public class RssService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d("[RssService]", "Service started");
+        Log.d(TAG, "Service started");
         List<RssItem> rssItems = null;
         try {
             PcWorldRssParser parser = new PcWorldRssParser();
@@ -47,7 +49,7 @@ public class RssService extends IntentService {
             URL url = new URL(link);
             return url.openConnection().getInputStream();
         } catch (IOException e) {
-            Log.w("[RssService]", "Exception while retrieving the input stream", e);
+            Log.w(TAG, "Exception while retrieving the input stream", e);
             return null;
         }
     }
