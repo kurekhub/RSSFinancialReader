@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PcWorldRssParser {
+public class RssParser {
     private final String ns = null;
     public List<RssItem> parse(InputStream inputStream) throws XmlPullParserException, IOException {
         try {
