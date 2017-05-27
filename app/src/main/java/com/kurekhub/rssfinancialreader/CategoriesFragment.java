@@ -13,7 +13,6 @@ import android.widget.CompoundButton;
 
 public class CategoriesFragment extends Fragment {
     public static final String TAG = "[CategoriesFragment]";
-    public static final String SHARED_PREF_NAME = "com.kurekhub.rssfinancialreader.RSS_READER_SHARED_PREF";
 
     private String bankierKey = "www.bankier.pl";
     private String interiaKey = "biznes.interia.pl";
@@ -44,7 +43,7 @@ public class CategoriesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        preferences = getActivity().getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        preferences = getActivity().getSharedPreferences(MainActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         boolean bankierChecked = preferences.getBoolean(bankierKey, Boolean.TRUE);
         boolean interiaChecked = preferences.getBoolean(interiaKey, Boolean.TRUE);

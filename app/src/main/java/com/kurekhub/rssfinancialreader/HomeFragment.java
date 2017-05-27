@@ -1,9 +1,10 @@
 package com.kurekhub.rssfinancialreader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -22,8 +23,12 @@ import android.widget.ProgressBar;
 
 import com.kurekhub.rssfinancialreader.database.RssFeederDbHelper;
 
+import java.util.Map;
+
 
 public class HomeFragment extends Fragment implements AdapterView.OnItemClickListener {
+    public static final String TAG = "[HomeFragment]";
+
     public static final String EXTRA_TITLE = "com.kurekhub.rssfinancialreader.EXTRA_TITLE";
     public static final String EXTRA_LINK = "com.kurekhub.rssfinancialreader.EXTRA_LINK";
     public static final String EXTRA_PUB_DATE = "com.kurekhub.rssfinancialreader.EXTRA_PUB_DATE";
@@ -31,6 +36,9 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     private ProgressBar progressBar;
     private ListView listView;
     private View view;
+
+    private SharedPreferences preferences;
+    private Map<String, ?> availableSites;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,16 +63,21 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         EditText searchInput = (EditText) view.findViewById(R.id.search_input);
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
                 updateNewsView(s.toString());
             }
         });
+
+        preferences = getActivity().getSharedPreferences(MainActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        availableSites = preferences.getAll();
 
         return view;
     }
@@ -80,15 +93,41 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         listView.setVisibility(View.GONE);
         RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
         SQLiteDatabase db = handler.getWritableDatabase();
-        String sqlQuery;
-        if(searchQuery == null) {
-            sqlQuery = "SELECT * FROM rss_feeder ORDER BY _id ASC";
+
+        /* tak widzialem to zapytanie ale pewnie jest bledne
+
+          SELECT * FROM rss_feeder
+          WHERE link IN ( # chyba IN, nie wiem
+	          SELECT list FROM rss_feeder
+	          WHERE link LIKE %pierwszy_elem% AND %drugi_elem% # w zaleznosci ktore sa na true
+          ) AND title LIKE %search% # tu ta szukajka
+          ORDER BY _id ASC
+        */
+
+        StringBuilder sqlQuery = new StringBuilder();
+        sqlQuery.append("SELECT * FROM rss_feeder ");
+
+//        sqlQuery.append("WHERE link IN (");
+//        sqlQuery.append("SELECT link FROM rss_feeder WHERE");
+//
+//        if (availableSites != null) {
+//            for (Map.Entry<String, ?> entry : availableSites.entrySet()) {
+//                if ((Boolean) entry.getValue()) {
+//                    sqlQuery.append(" link LIKE ").append("'%").append(entry.getKey()).append("%'");
+//                    sqlQuery.append(" AND");
+//                }
+//            }
+//        }
+//
+//        sqlQuery.append(")");
+
+        if (searchQuery != null) {
+            sqlQuery.append("WHERE title LIKE '%").append(searchQuery).append("%' ");
         }
-        else {
-            sqlQuery = "SELECT * FROM rss_feeder WHERE title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
-        }
-        Log.d("sqlQuery", sqlQuery);
-        Cursor rssCursor = db.rawQuery(sqlQuery, null);
+        sqlQuery.append(" ORDER BY _id ASC");
+
+        Log.d("sqlQuery", sqlQuery.toString());
+        Cursor rssCursor = db.rawQuery(sqlQuery.toString(), null);
         NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
         listView.setAdapter(newsAdapter);
         progressBar.setVisibility(View.GONE);
