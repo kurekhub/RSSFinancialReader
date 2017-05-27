@@ -1,14 +1,17 @@
 package com.kurekhub.rssfinancialreader;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.jsoup.Jsoup;
 
 public class ItemDetails extends AppCompatActivity {
+    private String link;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +20,7 @@ public class ItemDetails extends AppCompatActivity {
 
         Intent intent = getIntent();
         String title = intent.getStringExtra(HomeFragment.EXTRA_TITLE);
-        String link = intent.getStringExtra(HomeFragment.EXTRA_LINK);
+        link = intent.getStringExtra(HomeFragment.EXTRA_LINK);
         String pubDate = intent.getStringExtra(HomeFragment.EXTRA_PUB_DATE);
         String description = intent.getStringExtra(HomeFragment.EXTRA_DESCRIPTION);
 
@@ -35,5 +38,11 @@ public class ItemDetails extends AppCompatActivity {
         tvDescription.setText(description);
 
         new DownloadImageTask(imageView).execute(imageURL);
+    }
+
+    public void onMoreClick(View view) {
+        Uri uri = Uri.parse(link);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 }

@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_categories:
                     fragment = new CategoriesFragment();
                     break;
-                case R.id.navigation_favorites:
-                    fragment = new SettingsFragment();
+                case R.id.navigation_info:
+                    fragment = new InfoFragment();
                     break;
             }
             final FragmentTransaction transaction = fragmentManager.beginTransaction();
