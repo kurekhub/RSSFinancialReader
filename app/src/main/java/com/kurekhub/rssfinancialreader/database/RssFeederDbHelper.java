@@ -52,60 +52,22 @@ public class RssFeederDbHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-            long itemId = addOrUpdateItem(item);
             ContentValues values = new ContentValues();
-            values.put(FeedEntry._ID, itemId);
             values.put(FeedEntry.COLUMN_NAME_TITLE, item.getTitle());
             values.put(FeedEntry.COLUMN_NAME_LINK, item.getLink());
             values.put(FeedEntry.COLUMN_NAME_PUB_DATE, item.getPubDate());
             values.put(FeedEntry.COLUMN_NAME_DESCRIPTION, item.getDescription());
 
-            db.insertOrThrow(FeedEntry.TABLE_NAME, null, values);
-            db.setTransactionSuccessful();
+            int rows = db.update(FeedEntry.TABLE_NAME, values, FeedEntry.COLUMN_NAME_TITLE + "= ?", new String[]{item.getTitle()});
+            if(rows == 0) {
+                db.insertOrThrow(FeedEntry.TABLE_NAME, null, values);
+                db.setTransactionSuccessful();
+            }
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to add item to database");
         } finally {
             db.endTransaction();
         }
-    }
-
-    private long addOrUpdateItem(RssItem item) {
-        SQLiteDatabase db = getWritableDatabase();
-        long itemId = -1;
-
-        db.beginTransaction();
-
-        try {
-            ContentValues values = new ContentValues();
-            values.put(FeedEntry.COLUMN_NAME_TITLE, item.getTitle());
-            values.put(FeedEntry.COLUMN_NAME_LINK, item.getLink());
-
-            int rows = db.update(FeedEntry.TABLE_NAME, values, FeedEntry.COLUMN_NAME_TITLE + "= ?", new String[]{item.getTitle()});
-
-            if (rows == 1) {
-                String itemsSelectQuery = String.format("SELECT %s FROM %s WHERE %s = ?", FeedEntry._ID, FeedEntry.TABLE_NAME, FeedEntry.COLUMN_NAME_TITLE);
-                Cursor cursor = db.rawQuery(itemsSelectQuery, new String[]{String.valueOf(item.getTitle())});
-                try {
-                    if (cursor.moveToFirst()) {
-                        itemId = cursor.getInt(0);
-                        db.setTransactionSuccessful();
-                    }
-                } finally {
-                    if (cursor != null && !cursor.isClosed()) {
-                        cursor.close();
-                    }
-                }
-            } else {
-                itemId = db.insertOrThrow(FeedEntry.TABLE_NAME, null, values);
-                db.setTransactionSuccessful();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error while trying to add or update item");
-        } finally {
-            db.endTransaction();
-        }
-
-        return itemId;
     }
 
     @Override
