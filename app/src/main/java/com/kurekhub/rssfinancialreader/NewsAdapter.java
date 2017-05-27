@@ -27,4 +27,21 @@ class NewsAdapter extends CursorAdapter {
         tvTitle.setText(title);
         tvPubDate.setText(pubDate);
     }
+
+    @Override
+    public Object getItem(int position) {
+        Cursor cursor = getCursor();
+        RssItem rssItem;
+        if(cursor.moveToPosition(position)) {
+            rssItem = new RssItem(
+                    cursor.getString(cursor.getColumnIndexOrThrow("title")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("link")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("pub_date")),
+                    cursor.getString(cursor.getColumnIndexOrThrow("description"))
+            );
+            return rssItem;
+        }
+
+        return null;
+    }
 }
