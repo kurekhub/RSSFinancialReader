@@ -4,10 +4,14 @@ package com.kurekhub.rssfinancialreader;
 public class RssItem {
     private final String title;
     private final String link;
+    private final String pubDate;
+    private final String description;
 
-    public RssItem(String title, String link) {
+    public RssItem(String title, String link, String pubDate, String description) {
         this.title = title;
         this.link = link;
+        this.pubDate = pubDate;
+        this.description = description;
     }
 
     public String getLink() {
@@ -16,5 +20,13 @@ public class RssItem {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getPubDate() {
+        return pubDate;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

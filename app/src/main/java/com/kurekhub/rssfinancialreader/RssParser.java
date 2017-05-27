@@ -1,6 +1,9 @@
 package com.kurekhub.rssfinancialreader;
 
+import android.content.Context;
 import android.util.Xml;
+
+import com.kurekhub.rssfinancialreader.database.RssFeederDbHelper;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -12,6 +15,12 @@ import java.util.List;
 
 public class RssParser {
     private final String ns = null;
+    private RssFeederDbHelper dbHelper;
+
+    public RssParser(Context applicationContext) {
+        dbHelper = RssFeederDbHelper.getInstance(applicationContext);
+    }
+
     public List<RssItem> parse(InputStream inputStream) throws XmlPullParserException, IOException {
         try {
             XmlPullParser parser = Xml.newPullParser();
@@ -28,42 +37,49 @@ public class RssParser {
         parser.require(XmlPullParser.START_TAG, null, "rss");
         String title = null;
         String link = null;
+        String pubDate = null;
+        String description = null;
         List<RssItem> items = new ArrayList<>();
-
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("title")) {
-                title = readTitle(parser);
-            } else if (name.equals("link")) {
-                link = readLink(parser);
+            switch (name) {
+                case "title":
+                    title = readTagValue(parser, "title");
+                    break;
+                case "link":
+                    link = readTagValue(parser, "link");
+                    break;
+                case "pubDate":
+                    pubDate = readTagValue(parser, "pubDate");
+                    break;
+                case "description":
+                    description = readTagValue(parser, "description");
+                    break;
             }
 
-            if (title != null && link != null) {
-                RssItem item = new RssItem(title, link);
+            if (title != null && link != null && pubDate != null && description != null) {
+                RssItem item = new RssItem(title, link, pubDate, description);
                 items.add(item);
+                dbHelper.addItem(item);
                 title = null;
                 link = null;
+                pubDate = null;
+                description = null;
             }
         }
+
 
         return items;
     }
 
-    private String readLink(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "link");
-        String link = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "link");
-        return link;
-    }
-
-    private String readTitle(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "title");
-        String title = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "title");
-        return title;
+    private String readTagValue(XmlPullParser parser, String tag) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, tag);
+        String text = readText(parser);
+        parser.require(XmlPullParser.END_TAG, ns, tag);
+        return text;
     }
 
     private String readText(XmlPullParser parser) throws XmlPullParserException, IOException {

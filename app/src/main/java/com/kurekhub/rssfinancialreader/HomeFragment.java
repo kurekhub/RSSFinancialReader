@@ -1,6 +1,8 @@
 package com.kurekhub.rssfinancialreader;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,12 +15,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.kurekhub.rssfinancialreader.database.RssFeederDbHelper;
+
 
 public class HomeFragment extends Fragment implements AdapterView.OnItemClickListener {
+    public static final String EXTRA_TITLE = "com.kurekhub.rssfinancialreader.EXTRA_TITLE";
+    public static final String EXTRA_LINK = "com.kurekhub.rssfinancialreader.EXTRA_LINK";
+    public static final String EXTRA_PUB_DATE = "com.kurekhub.rssfinancialreader.EXTRA_PUB_DATE";
+    public static final String EXTRA_DESCRIPTION = "com.kurekhub.rssfinancialreader.EXTRA_DESCRIPTION";
     private ProgressBar progressBar;
     private ListView listView;
     private View view;
@@ -35,7 +40,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_home, container, false);
             progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-            listView = (ListView) view.findViewById(R.id.news_list);
+            listView = (ListView) view.findViewById(R.id.rss_list);
             listView.setOnItemClickListener(this);
             startService();
         } else {
@@ -55,13 +60,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     private final ResultReceiver resultReceiver = new ResultReceiver(new Handler()) {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            List<RssItem> items = (List<RssItem>) resultData.getSerializable(RssService.ITEMS);
-            if (items != null) {
-                NewsAdapter adapter = new NewsAdapter(getActivity(), items);
-                listView.setAdapter(adapter);
-            } else {
-                Toast.makeText(getActivity(), "An error occured while downloading the rss feed.", Toast.LENGTH_LONG).show();
-            }
+            RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
+            SQLiteDatabase db = handler.getWritableDatabase();
+            Cursor rssCursor = db.rawQuery("SELECT * FROM rss_feeder ORDER BY _id ASC", null);
+            NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
+            listView.setAdapter(newsAdapter);
             progressBar.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
         }
@@ -71,8 +74,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         NewsAdapter adapter = (NewsAdapter) parent.getAdapter();
         RssItem item = (RssItem) adapter.getItem(position);
-        Uri uri = Uri.parse(item.getLink());
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        Intent intent = new Intent(getActivity(), ItemDetails.class);
+        intent.putExtra(EXTRA_TITLE, item.getTitle());
+        intent.putExtra(EXTRA_LINK, item.getLink());
+        intent.putExtra(EXTRA_PUB_DATE, item.getPubDate());
+        intent.putExtra(EXTRA_DESCRIPTION, item.getDescription());
         startActivity(intent);
     }
 }
