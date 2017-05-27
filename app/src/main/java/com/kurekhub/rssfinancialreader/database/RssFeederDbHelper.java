@@ -52,8 +52,9 @@ public class RssFeederDbHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-//           long itemId = addOrUpdateItem(item);
+            long itemId = addOrUpdateItem(item);
             ContentValues values = new ContentValues();
+            values.put(FeedEntry._ID, itemId);
             values.put(FeedEntry.COLUMN_NAME_TITLE, item.getTitle());
             values.put(FeedEntry.COLUMN_NAME_LINK, item.getLink());
             values.put(FeedEntry.COLUMN_NAME_PUB_DATE, item.getPubDate());
