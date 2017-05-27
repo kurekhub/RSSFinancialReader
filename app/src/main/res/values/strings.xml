@@ -10,4 +10,8 @@
     <string name="more">Więcej</string>
     <string name="search_title">Szukaj</string>
     <string name="search">Szukaj...</string>
+    <string name="biznes_interia_pl">biznes.interia.pl</string>
+    <string name="finanse_wp_pl">finanse.wp.pl</string>
+    <string name="www_bankier_pl">www.bankier.pl</string>
+    <string name="www_money_pl">www.money.pl</string>
 </resources>

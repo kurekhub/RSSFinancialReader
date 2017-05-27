@@ -12,5 +12,34 @@
         android:layout_height="wrap_content"
         android:text="@string/categories_title"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:textSize="20sp"/>
+
+    <CheckBox
+        android:id="@+id/interia_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/biznes_interia_pl" />
+
+    <CheckBox
+        android:id="@+id/wp_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/finanse_wp_pl" />
+
+    <CheckBox
+        android:id="@+id/bankier_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/www_bankier_pl" />
+
+    <CheckBox
+        android:id="@+id/money_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/www_money_pl" />
 </LinearLayout>
