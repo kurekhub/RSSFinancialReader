@@ -9,10 +9,14 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.os.ResultReceiver;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -48,6 +52,20 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             parent.removeView(view);
         }
 
+        EditText searchInput = (EditText) view.findViewById(R.id.search_input);
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateNewsView(s.toString());
+            }
+        });
+
         return view;
     }
 
@@ -57,16 +75,30 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         getActivity().startService(intent);
     }
 
+    private void updateNewsView(String searchQuery) {
+        progressBar.setVisibility(View.VISIBLE);
+        listView.setVisibility(View.GONE);
+        RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
+        SQLiteDatabase db = handler.getWritableDatabase();
+        String sqlQuery;
+        if(searchQuery == null) {
+            sqlQuery = "SELECT * FROM rss_feeder ORDER BY _id ASC";
+        }
+        else {
+            sqlQuery = "SELECT * FROM rss_feeder WHERE title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+        }
+        Log.d("sqlQuery", sqlQuery);
+        Cursor rssCursor = db.rawQuery(sqlQuery, null);
+        NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
+        listView.setAdapter(newsAdapter);
+        progressBar.setVisibility(View.GONE);
+        listView.setVisibility(View.VISIBLE);
+    }
+
     private final ResultReceiver resultReceiver = new ResultReceiver(new Handler()) {
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
-            SQLiteDatabase db = handler.getWritableDatabase();
-            Cursor rssCursor = db.rawQuery("SELECT * FROM rss_feeder ORDER BY _id ASC", null);
-            NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
-            listView.setAdapter(newsAdapter);
-            progressBar.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
+            updateNewsView(null);
         }
     };
 

@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-
 public class MainActivity extends AppCompatActivity {
     private Fragment fragment;
     private FragmentManager fragmentManager;
