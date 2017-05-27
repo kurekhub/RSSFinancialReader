@@ -37,24 +37,32 @@ public class RssParser {
         parser.require(XmlPullParser.START_TAG, null, "rss");
         String title = null;
         String link = null;
+        String pubDate = null;
         List<RssItem> items = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("title")) {
-                title = readTitle(parser);
-            } else if (name.equals("link")) {
-                link = readLink(parser);
+            switch (name) {
+                case "title":
+                    title = readTitle(parser);
+                    break;
+                case "link":
+                    link = readLink(parser);
+                    break;
+                case "pubDate":
+                    pubDate = readPubDate(parser);
+                    break;
             }
 
             if (title != null && link != null) {
-                RssItem item = new RssItem(title, link);
+                RssItem item = new RssItem(title, link, pubDate);
                 items.add(item);
                 dbHelper.addItem(item);
                 title = null;
                 link = null;
+                pubDate = null;
             }
         }
 
@@ -74,6 +82,13 @@ public class RssParser {
         String title = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "title");
         return title;
+    }
+
+    private String readPubDate(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, ns, "pubDate");
+        String pubDate = readText(parser);
+        parser.require(XmlPullParser.END_TAG, ns, "pubDate");
+        return pubDate;
     }
 
     private String readText(XmlPullParser parser) throws XmlPullParserException, IOException {

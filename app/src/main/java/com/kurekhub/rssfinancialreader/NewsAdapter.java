@@ -21,7 +21,10 @@ class NewsAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView tvTitle = (TextView) view.findViewById(R.id.news_list_item_title);
+        TextView tvPubDate = (TextView) view.findViewById(R.id.news_list_item_pub_date);
         String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+        String pubDate = cursor.getString(cursor.getColumnIndexOrThrow("pub_date"));
         tvTitle.setText(title);
+        tvPubDate.setText(pubDate);
     }
 }
