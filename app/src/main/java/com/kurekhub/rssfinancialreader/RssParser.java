@@ -60,7 +60,7 @@ public class RssParser {
                     break;
             }
 
-            if (title != null && link != null) {
+            if (title != null && link != null && pubDate != null && description != null) {
                 RssItem item = new RssItem(title, link, pubDate, description);
                 items.add(item);
                 dbHelper.addItem(item);
