@@ -2,12 +2,16 @@
     <string name="app_name">RSS Financial Reader</string>
     <string name="title_home">Home</string>
     <string name="title_categories">Kategorie</string>
-    <string name="title_favorites">Ulubione</string>
+    <string name="title_info">Informacje</string>
     <string name="title_settings">Ustawienia</string>
     <string name="home_title">Home</string>
     <string name="categories_title">Lista kategorii</string>
-    <string name="settings_title">Ustawienia</string>
     <string name="more">Więcej</string>
     <string name="search_title">Szukaj</string>
     <string name="search">Szukaj...</string>
+    <string name="info_title">Informacje o aplikacji</string>
+    <string name="info_p1">Autorzy:</string>
+    <string name="info_p2">Michał Ligęza\nHubert Kurek</string>
+    <string name="info_p3">Opis aplikacji:</string>
+    <string name="info_p4">Aplikacja jest agregatorem wiadomości o tematyce finansowej. Wiadomości te są pobierane z różnych portali informacyjnych w postaci plików RSS. Aplikacja ta przeznaczona jest dla osób chcących być na bieżąco ze światem finansów.</string>
 </resources>
