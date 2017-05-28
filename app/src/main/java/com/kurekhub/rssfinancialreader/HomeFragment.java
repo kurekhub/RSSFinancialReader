@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -12,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.os.ResultReceiver;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +55,9 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
             progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             listView = (ListView) view.findViewById(R.id.rss_list);
             listView.setOnItemClickListener(this);
-            startService();
+            if(isOnline()) {
+                startService();
+            }
         } else {
             ViewGroup parent = (ViewGroup) view.getParent();
             parent.removeView(view);
@@ -79,7 +82,17 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         preferences = getActivity().getSharedPreferences(MainActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         availableSites = preferences.getAll();
 
+        if(!isOnline()) {
+            updateNewsView(null);
+        }
+
         return view;
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void startService() {
@@ -94,7 +107,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
         SQLiteDatabase db = handler.getWritableDatabase();
         String sqlQuery;
-        Log.d("pref", availableSites.toString());
 
         String categoriesQuery = "";
         boolean categoriesFirst = true;
@@ -109,7 +121,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
                 }
             }
         }
-        Log.d("categoriesQuery", categoriesQuery);
 
         if(searchQuery == null) {
             if(categoriesFirst) {
@@ -127,7 +138,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
                 sqlQuery = "SELECT * FROM rss_feeder WHERE (" + categoriesQuery + ") AND title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
             }
         }
-        Log.d("sqlQuery", sqlQuery);
         Cursor rssCursor = db.rawQuery(sqlQuery, null);
         NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
         listView.setAdapter(newsAdapter);

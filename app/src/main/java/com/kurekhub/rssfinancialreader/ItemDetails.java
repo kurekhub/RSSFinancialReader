@@ -30,14 +30,20 @@ public class ItemDetails extends AppCompatActivity {
         tvTitle.setText(title);
         tvPubDate.setText(pubDate);
 
-        String imageURL = Jsoup.parse(description).select("img").first().attr("src");
         ImageView imageView = (ImageView) findViewById(R.id.item_details_image);
-        description = description.replaceAll("<img(.*?)>", "").trim();
 
+        if(Jsoup.parse(description).select("img").first() != null) {
+            String imageURL = Jsoup.parse(description).select("img").first().attr("src");
+            new DownloadImageTask(imageView).execute(imageURL);
+        }
+        else {
+            imageView.setVisibility(View.GONE);
+        }
+
+        description = description.replaceAll("<img(.*?)>", "").trim();
+        description = description.replaceAll("<(.*?)p>", "").trim();
         TextView tvDescription = (TextView) findViewById(R.id.item_details_description);
         tvDescription.setText(description);
-
-        new DownloadImageTask(imageView).execute(imageURL);
     }
 
     public void onMoreClick(View view) {
