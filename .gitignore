@@ -11,8 +11,14 @@ out/
 
 # Gradle files
 .gradle/
-build/
-!build/*.apk
+build/generated/
+build/intermediates/
+build/tmp/
+build/android-profile/
+app/build/generated/
+app/build/intermediates/
+app/build/tmp/
+app/build/android-profile/
 
 # Local configuration file (sdk path, etc)
 local.properties
