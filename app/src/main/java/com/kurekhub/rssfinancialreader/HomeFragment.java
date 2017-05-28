@@ -93,41 +93,42 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         listView.setVisibility(View.GONE);
         RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
         SQLiteDatabase db = handler.getWritableDatabase();
+        String sqlQuery;
+        Log.d("pref", availableSites.toString());
 
-        /* tak widzialem to zapytanie ale pewnie jest bledne
-
-          SELECT * FROM rss_feeder
-          WHERE link IN ( # chyba IN, nie wiem
-	          SELECT list FROM rss_feeder
-	          WHERE link LIKE %pierwszy_elem% AND %drugi_elem% # w zaleznosci ktore sa na true
-          ) AND title LIKE %search% # tu ta szukajka
-          ORDER BY _id ASC
-        */
-
-        StringBuilder sqlQuery = new StringBuilder();
-        sqlQuery.append("SELECT * FROM rss_feeder ");
-
-//        sqlQuery.append("WHERE link IN (");
-//        sqlQuery.append("SELECT link FROM rss_feeder WHERE");
-//
-//        if (availableSites != null) {
-//            for (Map.Entry<String, ?> entry : availableSites.entrySet()) {
-//                if ((Boolean) entry.getValue()) {
-//                    sqlQuery.append(" link LIKE ").append("'%").append(entry.getKey()).append("%'");
-//                    sqlQuery.append(" AND");
-//                }
-//            }
-//        }
-//
-//        sqlQuery.append(")");
-
-        if (searchQuery != null) {
-            sqlQuery.append("WHERE title LIKE '%").append(searchQuery).append("%' ");
+        String categoriesQuery = "";
+        boolean categoriesFirst = true;
+        for(Map.Entry<String, ?> entry : availableSites.entrySet()) {
+            if(entry.getValue().equals(true)) {
+                if(categoriesFirst) {
+                    categoriesQuery += " link LIKE '%" + entry.getKey() + "%'";
+                    categoriesFirst = false;
+                }
+                else {
+                    categoriesQuery += " OR link LIKE '%" + entry.getKey() + "%'";
+                }
+            }
         }
-        sqlQuery.append(" ORDER BY _id ASC");
+        Log.d("categoriesQuery", categoriesQuery);
 
-        Log.d("sqlQuery", sqlQuery.toString());
-        Cursor rssCursor = db.rawQuery(sqlQuery.toString(), null);
+        if(searchQuery == null) {
+            if(categoriesFirst) {
+                sqlQuery = "SELECT * FROM rss_feeder ORDER BY _id ASC";
+            }
+            else {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE " + categoriesQuery + " ORDER BY _id ASC";
+            }
+        }
+        else {
+            if(categoriesFirst) {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+            }
+            else {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE (" + categoriesQuery + ") AND title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+            }
+        }
+        Log.d("sqlQuery", sqlQuery);
+        Cursor rssCursor = db.rawQuery(sqlQuery, null);
         NewsAdapter newsAdapter = new NewsAdapter(getActivity(), rssCursor);
         listView.setAdapter(newsAdapter);
         progressBar.setVisibility(View.GONE);
