@@ -2,8 +2,8 @@
 
 ## Zespół.
 
-Hubert Kurek 187127
-Michał Ligęza 187226
+* Hubert Kurek 187127
+* Michał Ligęza 187226
 
 ## Opis aplikacji.
 
