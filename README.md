@@ -14,3 +14,17 @@ Aplikacja będzie agregatorem wiadomości o tematyce finansowej. Wiadomości te 
 * Podział wiadomości na kategorie.
 * Możliwość dostosowania ekranu startowego przez wybranie najbardziej interesujących nas kategorii.
 * Możliwość wyszukiwania wiadomości.
+
+## Instrukcja korzystania z aplikacji
+
+### Ekran startowy
+
+Domyślnie pokazują się tutaj wszystkie wiadomości posortowane według najnowszych. Po kliknięciu w daną wiadomość użytkownik przenoszony zostaje do ekranu ze szczegułami danej wiadomości. Na ekranie tym znajduje się też przycisk "Więcej", który otwiera przeglądarkę z całą treścią wiadomości.
+
+### Kategorie
+
+Jest zakładka, na której użytkownik wybrać może interesujące go kategorie. Może odznaczyć te, które go nie interesują i zaznaczyć te, które go interesują. Wybór ten ma wpływ na wiadomości na ekranie startowym.
+
+### Informacje
+
+Ekran z informacjami o aplikacji.
