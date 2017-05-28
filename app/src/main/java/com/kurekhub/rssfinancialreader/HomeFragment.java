@@ -1,9 +1,10 @@
 package com.kurekhub.rssfinancialreader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -22,8 +23,12 @@ import android.widget.ProgressBar;
 
 import com.kurekhub.rssfinancialreader.database.RssFeederDbHelper;
 
+import java.util.Map;
+
 
 public class HomeFragment extends Fragment implements AdapterView.OnItemClickListener {
+    public static final String TAG = "[HomeFragment]";
+
     public static final String EXTRA_TITLE = "com.kurekhub.rssfinancialreader.EXTRA_TITLE";
     public static final String EXTRA_LINK = "com.kurekhub.rssfinancialreader.EXTRA_LINK";
     public static final String EXTRA_PUB_DATE = "com.kurekhub.rssfinancialreader.EXTRA_PUB_DATE";
@@ -31,6 +36,9 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
     private ProgressBar progressBar;
     private ListView listView;
     private View view;
+
+    private SharedPreferences preferences;
+    private Map<String, ?> availableSites;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,16 +63,21 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         EditText searchInput = (EditText) view.findViewById(R.id.search_input);
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
                 updateNewsView(s.toString());
             }
         });
+
+        preferences = getActivity().getSharedPreferences(MainActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        availableSites = preferences.getAll();
 
         return view;
     }
@@ -81,11 +94,38 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemClickLis
         RssFeederDbHelper handler = RssFeederDbHelper.getInstance(getActivity());
         SQLiteDatabase db = handler.getWritableDatabase();
         String sqlQuery;
+        Log.d("pref", availableSites.toString());
+
+        String categoriesQuery = "";
+        boolean categoriesFirst = true;
+        for(Map.Entry<String, ?> entry : availableSites.entrySet()) {
+            if(entry.getValue().equals(true)) {
+                if(categoriesFirst) {
+                    categoriesQuery += " link LIKE '%" + entry.getKey() + "%'";
+                    categoriesFirst = false;
+                }
+                else {
+                    categoriesQuery += " OR link LIKE '%" + entry.getKey() + "%'";
+                }
+            }
+        }
+        Log.d("categoriesQuery", categoriesQuery);
+
         if(searchQuery == null) {
-            sqlQuery = "SELECT * FROM rss_feeder ORDER BY _id ASC";
+            if(categoriesFirst) {
+                sqlQuery = "SELECT * FROM rss_feeder ORDER BY _id ASC";
+            }
+            else {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE " + categoriesQuery + " ORDER BY _id ASC";
+            }
         }
         else {
-            sqlQuery = "SELECT * FROM rss_feeder WHERE title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+            if(categoriesFirst) {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+            }
+            else {
+                sqlQuery = "SELECT * FROM rss_feeder WHERE (" + categoriesQuery + ") AND title LIKE '%" + searchQuery + "%' ORDER BY _id ASC";
+            }
         }
         Log.d("sqlQuery", sqlQuery);
         Cursor rssCursor = db.rawQuery(sqlQuery, null);

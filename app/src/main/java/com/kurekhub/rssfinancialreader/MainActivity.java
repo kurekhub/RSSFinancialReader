@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String SHARED_PREF_NAME = "com.kurekhub.rssfinancialreader.RSS_READER_SHARED_PREF";
+
     private Fragment fragment;
     private FragmentManager fragmentManager;
 
